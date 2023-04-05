@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use rustc_hash::FxHashSet;
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use {
     crate::{area::Area, qtinner::QTInner, traversal::Traversal},
     num::PrimInt,
@@ -35,7 +34,7 @@ where
     search_area: Area<U>,
     handle_stack: VecDeque<u64>,
     qt_stack: VecDeque<&'a QTInner<U>>,
-    visited: FxHashSet<u64>,
+    visited: HashSet<u64>,
 }
 
 impl<'a, U> HandleIter<'a, U>
@@ -47,7 +46,7 @@ where
             search_area,
             handle_stack: VecDeque::with_capacity(256),
             qt_stack: VecDeque::from(vec![qt]),
-            visited: FxHashSet::default(),
+            visited: HashSet::default(),
         }
     }
 

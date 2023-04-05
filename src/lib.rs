@@ -127,7 +127,7 @@ mod qtinner;
 mod traversal;
 mod types;
 
-use rustc_hash::FxHashSet;
+use std::collections::HashSet;
 use {
     crate::{
         area::{Area, AreaBuilder},
@@ -577,7 +577,7 @@ where
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    fn delete_handles_and_return(&mut self, handles: FxHashSet<u64>) -> IntoIter<U, V> {
+    fn delete_handles_and_return(&mut self, handles: HashSet<u64>) -> IntoIter<U, V> {
         let error: &'static str = "I tried to look up an handle in the store which I found in the tree, but it wasn't there!";
 
         let mut entries: Vec<Entry<U, V>> = vec![];
@@ -619,7 +619,7 @@ where
     {
         // TODO(ambuc): I think this is technically correct but it seems to be interweaving three
         // routines. Is there a way to simplify this?
-        let mut doomed: FxHashSet<(u64, Area<U>)> = FxHashSet::default();
+        let mut doomed: HashSet<(u64, Area<U>)> = HashSet::default();
         for (handle, entry) in &mut self.store {
             if f(entry.value_mut()) {
                 doomed.insert((*handle, entry.area()));
