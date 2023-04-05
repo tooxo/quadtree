@@ -118,7 +118,7 @@ where
         let handle = self.handle_counter;
         self.handle_counter += 1;
         store.insert(handle, Entry::new((req, val), handle));
-        self.insert_handle_at_region(req, handle, store);
+        self.insert_handle_at_region(req, handle);
         handle
     }
 
@@ -150,12 +150,7 @@ where
 
     // Attempts to insert the value at the requested region. Returns false if the region was too
     // large.
-    fn insert_handle_at_region<V>(
-        &mut self,
-        req: Area<U>,
-        handle: u64,
-        _store: &mut StoreType<U, V>,
-    ) {
+    fn insert_handle_at_region(&mut self, req: Area<U>, handle: u64) {
         // If we're at the bottom depth, it had better fit.
         if self.depth == 0 {
             self.kept_handles.push(handle);
@@ -181,7 +176,7 @@ where
         if let Some(sqs) = self.subquadrants.as_mut() {
             for sq in sqs.iter_mut() {
                 if sq.region.intersects(req) {
-                    sq.insert_handle_at_region(req, handle, _store);
+                    sq.insert_handle_at_region(req, handle);
                 }
             }
         }

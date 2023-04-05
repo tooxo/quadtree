@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use rustc_hash::FxHashSet;
+use std::collections::VecDeque;
+use std::ops::Deref;
 use {
     crate::{area::Area, qtinner::QTInner, traversal::Traversal},
     num::PrimInt,
@@ -31,8 +33,8 @@ pub(crate) struct HandleIter<'a, U>
 where
     U: PrimInt + Default,
 {
-    handle_stack: Vec<u64>,
-    qt_stack: Vec<&'a QTInner<U>>,
+    handle_stack: VecDeque<u64>,
+    qt_stack: VecDeque<&'a QTInner<U>>,
     visited: FxHashSet<u64>,
 }
 
@@ -42,8 +44,8 @@ where
 {
     pub(crate) fn new(qt: &'a QTInner<U>) -> HandleIter<'a, U> {
         HandleIter {
-            handle_stack: Vec::with_capacity(256),
-            qt_stack: vec![qt],
+            handle_stack: VecDeque::with_capacity(256),
+            qt_stack: VecDeque::from(vec![qt]),
             visited: FxHashSet::default(),
         }
     }
@@ -63,6 +65,8 @@ where
         assert!(self.handle_stack.is_empty());
         assert!(self.visited.is_empty());
 
+        self.qt_stack.reserve(255);
+
         self.descend_recurse_step(req, traversal_method);
     }
 
@@ -70,7 +74,7 @@ where
         assert_eq!(self.qt_stack.len(), 1);
         // Peek into the stack. We have to peek rather than pop, because if we are about to go too
         // far down we'd rather stop and return the HandleIter as-is.
-        if let Some(qt) = self.qt_stack.last() {
+        if let Some(qt) = self.qt_stack.back() {
             // If the region doesn't contain our @req, we're already too far down. Return here.
             if !qt.region().contains(req) {
                 return;
@@ -88,7 +92,8 @@ where
 
                         // TODO(ambuc): Could this be done with Vec::swap() or std::mem::replace()?
                         assert_eq!(self.qt_stack.len(), 1);
-                        self.qt_stack = vec![subquadrant];
+                        self.qt_stack.clear();
+                        self.qt_stack.push_back(subquadrant);
 
                         // Recurse on this step. It will naturally return, but we want to propogate
                         // that return rather than continue to search the other subquadrants.
@@ -110,26 +115,31 @@ where
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if let Some(handle) = self.handle_stack.pop() {
-                if !self.visited.insert(handle) {
-                    continue;
+            while let Some(handle) = self.handle_stack.pop_front() {
+                if self.visited.insert(handle) {
+                    return Some(handle);
                 }
-                return Some(handle);
             }
 
             // Then check the qt_stack.
-            if let Some(qt) = self.qt_stack.pop() {
-                // Push my regions onto the region stack
-                self.handle_stack.extend(qt.handles());
-
-                // Push my subquadrants onto the qt_stack too.
-                if let Some(subquadrants) = qt.subquadrants().as_ref() {
-                    self.qt_stack.push(&subquadrants[0]);
-                    self.qt_stack.push(&subquadrants[1]);
-                    self.qt_stack.push(&subquadrants[2]);
-                    self.qt_stack.push(&subquadrants[3]);
-                    // self.qt_stack.extend(subquadrants.iter().map(|x| x.deref()));
+            if let Some(qt) = self.qt_stack.pop_front() {
+                // Push my sub quadrants onto the qt_stack too.
+                if let Some(sub_quadrants) = qt.subquadrants().as_ref() {
+                    self.qt_stack
+                        .extend(sub_quadrants.iter().map(|x| x.deref()));
                 }
+
+                // Push my regions onto the region stack
+                match qt.handles().len() {
+                    0 => (),
+                    1 => {
+                        if self.visited.insert(qt.handles()[0]) {
+                            return Some(qt.handles()[0]);
+                        }
+                    }
+                    _ => self.handle_stack.extend(qt.handles()),
+                }
+
                 continue;
             }
 
