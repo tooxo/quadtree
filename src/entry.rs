@@ -17,7 +17,7 @@
 
 use {
     crate::{area::Area, point::Point},
-    num::PrimInt,
+    num_traits::PrimInt,
     std::default::Default,
 };
 

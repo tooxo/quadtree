@@ -22,7 +22,7 @@
 // 88       `Y88P'  Y888888P VP   V8P    YP
 
 use {
-    num::PrimInt,
+    num_traits::PrimInt,
     std::{
         fmt::Debug,
         ops::{Add, Sub},

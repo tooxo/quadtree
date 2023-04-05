@@ -15,7 +15,7 @@
 use std::collections::{HashSet, VecDeque};
 use {
     crate::{area::Area, qtinner::QTInner, traversal::Traversal},
-    num::PrimInt,
+    num_traits::PrimInt,
     std::{default::Default, iter::FusedIterator},
 };
 

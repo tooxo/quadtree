@@ -17,7 +17,7 @@ use {
         area::Area, entry::Entry, handle_iter::HandleIter, qtinner::QTInner, traversal::Traversal,
         types::StoreType,
     },
-    num::PrimInt,
+    num_traits::PrimInt,
     std::iter::FusedIterator,
 };
 

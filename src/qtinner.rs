@@ -19,7 +19,7 @@ use {
         point::Point,
         types::StoreType,
     },
-    num::PrimInt,
+    num_traits::PrimInt,
     std::{default::Default, fmt::Debug},
 };
 

@@ -16,7 +16,7 @@
 
 use {
     crate::point,
-    num::PrimInt,
+    num_traits::PrimInt,
     std::{cmp::PartialOrd, default::Default, fmt::Debug},
 };
 

@@ -115,7 +115,7 @@
 
 #[macro_use]
 extern crate derive_builder;
-extern crate num;
+extern crate num_traits;
 
 pub mod area;
 pub mod entry;
@@ -139,7 +139,7 @@ use {
         traversal::Traversal,
         types::StoreType,
     },
-    num::PrimInt,
+    num_traits::PrimInt,
     std::{collections::HashMap, default::Default, hash::Hash},
 };
 

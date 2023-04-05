@@ -1,5 +1,5 @@
 use {
-    num::{cast::FromPrimitive, PrimInt},
+    num_traits::{cast::FromPrimitive, PrimInt},
     quadtree_rs::area::AreaBuilder,
     std::{collections::HashSet, default::Default, fmt::Debug, hash::Hash, iter::FromIterator},
 };
