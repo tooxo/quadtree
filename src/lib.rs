@@ -674,7 +674,8 @@ where
         F: Fn(Area<U>) -> bool,
         M: Fn(&mut V) + Copy,
     {
-        let relevant_handles: Vec<u64> = HandleIter::new(&self.inner).collect();
+        let relevant_handles: Vec<u64> =
+            HandleIter::new(&self.inner, self.inner.region()).collect();
         for i in relevant_handles {
             if let Some(entry) = self.store.get_mut(&i) {
                 if filter(entry.area()) {

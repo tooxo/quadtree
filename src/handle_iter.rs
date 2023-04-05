@@ -14,7 +14,6 @@
 
 use rustc_hash::FxHashSet;
 use std::collections::VecDeque;
-use std::ops::Deref;
 use {
     crate::{area::Area, qtinner::QTInner, traversal::Traversal},
     num::PrimInt,
@@ -33,6 +32,7 @@ pub(crate) struct HandleIter<'a, U>
 where
     U: PrimInt + Default,
 {
+    search_area: Area<U>,
     handle_stack: VecDeque<u64>,
     qt_stack: VecDeque<&'a QTInner<U>>,
     visited: FxHashSet<u64>,
@@ -42,8 +42,9 @@ impl<'a, U> HandleIter<'a, U>
 where
     U: PrimInt + Default,
 {
-    pub(crate) fn new(qt: &'a QTInner<U>) -> HandleIter<'a, U> {
+    pub(crate) fn new(qt: &'a QTInner<U>, search_area: Area<U>) -> HandleIter<'a, U> {
         HandleIter {
+            search_area,
             handle_stack: VecDeque::with_capacity(256),
             qt_stack: VecDeque::from(vec![qt]),
             visited: FxHashSet::default(),
@@ -125,8 +126,11 @@ where
             if let Some(qt) = self.qt_stack.pop_front() {
                 // Push my sub quadrants onto the qt_stack too.
                 if let Some(sub_quadrants) = qt.subquadrants().as_ref() {
-                    self.qt_stack
-                        .extend(sub_quadrants.iter().map(|x| x.deref()));
+                    for sub_quadrant in sub_quadrants {
+                        if sub_quadrant.region().intersects(self.search_area) {
+                            self.qt_stack.push_back(sub_quadrant)
+                        }
+                    }
                 }
 
                 // Push my regions onto the region stack

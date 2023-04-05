@@ -50,7 +50,7 @@ where
     pub(crate) fn new(qt: &'a QTInner<U>, store: &'a StoreType<U, V>) -> Iter<'a, U, V> {
         Iter {
             store,
-            handle_iter: HandleIter::new(qt),
+            handle_iter: HandleIter::new(qt, qt.region()),
         }
     }
 }
@@ -159,7 +159,7 @@ where
         U: PrimInt + Default,
     {
         // Construct the HandleIter first...
-        let mut handle_iter = HandleIter::new(qt);
+        let mut handle_iter = HandleIter::new(qt, query_region);
 
         // ...and descend it to the appropriate level. Depending on the type of @traversal_method,
         // this will potentially collect intersecting regions along the way. Avoiding combing the
